@@ -1,0 +1,30 @@
+person:
+  id: 444444444444442222
+  username: zhangsan
+  age: 20
+  salary: 10000.22
+  bir: 2022/1/22 20:20:20
+  # 对象
+  address: &address
+    name: &addressName hangzhou
+    addressNo: 00001
+  # 数组的元素为纯量
+  hobbies:
+    - sing
+    - run
+    - watch movies
+  # 数组的元素也是数组
+  list:
+    - - 0
+    - - 1
+      - 2
+    - - 3
+      - 4
+  #锚点引用键
+  detailAddress:
+    <<: *address
+    buildNo: 24
+    unitNo: 1
+    community: xingfuli
+  #锚点引用值
+  addressName: *addressName
