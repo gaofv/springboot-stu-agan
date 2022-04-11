@@ -1,0 +1,25 @@
+server:
+  port: 9091
+  servlet:
+    context-path: /async
+#日志配置
+logging:
+  file:
+    name: ./logs/async
+  level:
+    org.springboot: info
+  pattern:
+    file: '==%-4relative [%thread] %-5level %logger{35} - %msg%n=='
+    console: '%-4relative [%thread] %-5level %logger{35} - %msg%n'
+
+  logback:
+    rollingpolicy:
+      # 指定轮转规则为每秒，即每秒生成一个新的日志文件
+      file-name-pattern: ${logging.file.name}.%d{yyyy-MM-dd-HH-mm-ss}.%i.log.gz
+      # 指定历史文件的最大保存周期
+      max-history: 3
+      # 指定日志文件的总大小
+      total-size-cap: 100MB
+      # 指定单个文件的日志大小，在一个轮转周期内，当文件大小达到maxFileSize的值时，会对日志文件进行拆分，递增索引从0开始
+      max-file-size: 1MB
+

@@ -21,6 +21,8 @@
 	<modules>
 		<module>springboot-helloworld</module>
 		<module>springboot-config</module>
+		<module>springboot-log</module>
+		<module>springboot-async</module>s
 	</modules>
 
 	<dependencies>
