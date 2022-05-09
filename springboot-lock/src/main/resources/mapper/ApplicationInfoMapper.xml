@@ -1,0 +1,83 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springboot.dao.ApplicationInfoDao">
+    <resultMap id="BaseResultMap" type="org.springboot.entity.ApplicationInfo">
+        <id column="app_key" property="appKey" jdbcType="VARCHAR"/>
+        <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+        <result column="app_description" property="appDescription" jdbcType="VARCHAR"/>
+        <result column="app_num" property="appNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="BaseColumnList">
+        app_key, app_name, app_description, app_num
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumnList"/>
+        from application_info
+        where app_key = #{appKey}
+    </select>
+
+    <insert id="insertSelective" parameterType="org.springboot.entity.ApplicationInfo">
+        insert into application_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="appKey != null and appKey != ''">
+                app_key,
+            </if>
+            <if test="appName != null and appName != ''">
+                app_name,
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                app_description,
+            </if>
+            <if test="appNum != null">
+                app_num,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="appKey != null and appKey != ''">
+                #{appKey},
+            </if>
+            <if test="appName != null and appName != ''">
+                #{appName},
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                #{appDescription},
+            </if>
+            <if test="appNum != null">
+                #{appNum},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateBySelective" parameterType="org.springboot.entity.ApplicationInfo">
+        update application_info
+        <set>
+            <if test="appName != null and appName != ''">
+                app_name = #{appName},
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                app_description = #{appDescription},
+            </if>
+            <if test="appNum != null">
+                app_num = #{appNum},
+            </if>
+        </set>
+        where app_key = #{appKey}
+    </update>
+
+    <delete id="deleteByPrimaryKey">
+        delete from application_info where app_key = #{appKey}
+    </delete>
+
+    <select id="selectList" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumnList"/>
+        from application_info
+        <where>
+            <if test="appName != null and appName.trim().length() > 0">
+                app_name like concat('%', #{appName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>
