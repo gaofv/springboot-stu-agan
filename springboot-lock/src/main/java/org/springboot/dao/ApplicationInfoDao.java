@@ -1,5 +1,6 @@
 package org.springboot.dao;
 
+import org.apache.ibatis.annotations.Param;
 import org.mapstruct.Mapper;
 import org.springboot.entity.ApplicationInfo;
 
@@ -24,4 +25,36 @@ public interface ApplicationInfoDao {
     int updateBySelective(ApplicationInfo record);
 
     int deleteByPrimaryKey(String appKey);
+
+    /**
+     * 单个sql，多次执行
+     *
+     * @param list
+     * @return
+     */
+    int batchUpdateSql(@Param("list") List<ApplicationInfo> list);
+
+    /**
+     * insert into .. on duplicate key update ...
+     *
+     * @param list
+     * @return
+     */
+    int batchUpdateDuplicateKey(@Param("list") List<ApplicationInfo> list);
+
+    /**
+     * replace into
+     *
+     * @param list
+     * @return
+     */
+    int batchUpdateReplaceInto(@Param("list") List<ApplicationInfo> list);
+
+    /**
+     * update case when
+     *
+     * @param list
+     * @return
+     */
+    int batchUpdateCaseWhen(@Param("list") List<ApplicationInfo> list);
 }

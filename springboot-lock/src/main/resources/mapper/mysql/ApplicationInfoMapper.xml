@@ -80,4 +80,85 @@
             </if>
         </where>
     </select>
+
+    <!--单个sql，多次执行-->
+    <update id="batchUpdateSql" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            update application_info
+            <set>
+                <if test="item.appName != null">
+                    app_name = #{item.appName},
+                </if>
+                <if test="item.appDescription != null">
+                    app_description = #{item.appDescription},
+                </if>
+                <if test="item.appNum != null">
+                    app_num = #{item.appNum},
+                </if>
+            </set>
+            where app_key = #{item.appKey}
+        </foreach>
+    </update>
+
+    <!--insert into .. on duplicate key update ...-->
+    <update id="batchUpdateDuplicateKey" parameterType="java.util.List">
+        insert into application_info
+        (<include refid="BaseColumnList"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.appKey,jdbcType=VARCHAR},
+            #{item.appName,jdbcType=VARCHAR},
+            #{item.appDescription,jdbcType=VARCHAR},
+            #{item.appNum,jdbcType=INTEGER}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            app_name = VALUES(app_name),
+            app_description = VALUES(app_description),
+            app_num = VALUES(app_num)
+    </update>
+
+    <!--replace into-->
+    <update id="batchUpdateReplaceInto" parameterType="java.util.List">
+        replace into application_info
+        (<include refid="BaseColumnList"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.appKey,jdbcType=VARCHAR},
+            #{item.appName,jdbcType=VARCHAR},
+            #{item.appDescription,jdbcType=VARCHAR},
+            #{item.appNum,jdbcType=INTEGER}
+            )
+         </foreach>
+    </update>
+
+    <!--update case when-->
+    <update id="batchUpdateCaseWhen" parameterType="java.util.List">
+        update application_info
+        <set>
+            <trim prefix="app_name = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appName}
+                </foreach>
+            </trim>
+            <trim prefix="app_description = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appDescription}
+                </foreach>
+            </trim>
+            <trim prefix="app_num = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appNum}
+                </foreach>
+            </trim>
+        </set>
+        <where>
+            app_key in
+            <foreach collection="list" item="item" open="(" separator="," close=")">
+                #{item.appKey}
+            </foreach>
+        </where>
+    </update>
 </mapper>

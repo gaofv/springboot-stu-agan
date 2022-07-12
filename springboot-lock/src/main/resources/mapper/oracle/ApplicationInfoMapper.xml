@@ -1,0 +1,180 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.springboot.dao.ApplicationInfoDao">
+    <resultMap id="BaseResultMap" type="org.springboot.entity.ApplicationInfo">
+        <id column="app_key" property="appKey" jdbcType="VARCHAR"/>
+        <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+        <result column="app_description" property="appDescription" jdbcType="VARCHAR"/>
+        <result column="app_num" property="appNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="BaseColumnList">
+        app_key, app_name, app_description, app_num
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumnList"/>
+        from application_info
+        where app_key = #{appKey}
+    </select>
+
+    <insert id="insertSelective" parameterType="org.springboot.entity.ApplicationInfo">
+        insert into application_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="appKey != null and appKey != ''">
+                app_key,
+            </if>
+            <if test="appName != null and appName != ''">
+                app_name,
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                app_description,
+            </if>
+            <if test="appNum != null">
+                app_num,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="appKey != null and appKey != ''">
+                #{appKey},
+            </if>
+            <if test="appName != null and appName != ''">
+                #{appName},
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                #{appDescription},
+            </if>
+            <if test="appNum != null">
+                #{appNum},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateBySelective" parameterType="org.springboot.entity.ApplicationInfo">
+        update application_info
+        <set>
+            <if test="appName != null and appName != ''">
+                app_name = #{appName},
+            </if>
+            <if test="appDescription != null and appDescription != ''">
+                app_description = #{appDescription},
+            </if>
+            <if test="appNum != null">
+                app_num = #{appNum},
+            </if>
+        </set>
+        where app_key = #{appKey}
+    </update>
+
+    <delete id="deleteByPrimaryKey">
+        delete from application_info where app_key = #{appKey}
+    </delete>
+
+    <select id="selectList" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumnList"/>
+        from application_info
+        <where>
+            <if test="appName != null and appName.trim().length() > 0">
+                app_name like concat('%', #{appName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!--单个sql，多次执行-->
+    <update id="batchUpdateSql" parameterType="java.util.List">
+        <trim prefix="begin" suffix="; end;">
+            <foreach collection="list" item="item" separator=";">
+                update application_info
+                <set>
+                    <if test="item.appName != null">
+                        app_name = #{item.appName},
+                    </if>
+                    <if test="item.appDescription != null">
+                        app_description = #{item.appDescription},
+                    </if>
+                    <if test="item.appNum != null">
+                        app_num = #{item.appNum},
+                    </if>
+                </set>
+                where app_key = #{item.appKey}
+            </foreach>
+        </trim>
+    </update>
+
+    <!--merge into-->
+    <update id="batchUpdateDuplicateKey" parameterType="java.util.List">
+        merge into application_info t
+        using (
+            <foreach collection="list" item="item" separator="union all">
+                select
+                #{item.appKey} appKey,
+                #{item.appName} appName,
+                #{item.appDescription} appDescription,
+                #{item.appNum} appNum
+                from dual
+            </foreach>
+        ) s
+        on (t.app_key = s.appKey)
+        when matched then
+            update set
+                app_name = s.appName,
+                app_description = s.appDescription,
+                app_num = s.appNum
+        when not matched then
+            insert (app_key, app_name, app_description, app_num)
+            values (s.appKey, s.appName, s.appDescription, s.appNum)
+    </update>
+
+    <!--replace into-->
+    <update id="batchUpdateReplaceInto" parameterType="java.util.List">
+        merge into application_info t
+        using (
+        <foreach collection="list" item="item" separator="union all">
+            select
+            #{item.appKey} appKey,
+            #{item.appName} appName,
+            #{item.appDescription} appDescription,
+            #{item.appNum} appNum
+            from dual
+        </foreach>
+        ) s
+        on (t.app_key = s.appKey)
+        when matched then
+        update set
+            app_name = s.appName,
+            app_description = s.appDescription,
+            app_num = s.appNum
+        when not matched then
+            insert (app_key, app_name, app_description, app_num)
+            values (s.appKey, s.appName, s.appDescription, s.appNum)
+    </update>
+
+    <!--update case when-->
+    <update id="batchUpdateCaseWhen" parameterType="java.util.List">
+        update application_info
+        <set>
+            <trim prefix="app_name = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appName}
+                </foreach>
+            </trim>
+            <trim prefix="app_description = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appDescription}
+                </foreach>
+            </trim>
+            <trim prefix="app_num = case app_key" suffix="end,">
+                <foreach collection="list" item="item">
+                    when #{item.appKey} then #{item.appNum}
+                </foreach>
+            </trim>
+        </set>
+        <where>
+            app_key in
+            <foreach collection="list" item="item" open="(" separator="," close=")">
+                #{item.appKey}
+            </foreach>
+        </where>
+    </update>
+</mapper>
